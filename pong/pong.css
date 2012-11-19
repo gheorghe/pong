@@ -1,0 +1,43 @@
+#container {
+    position: relative;
+    width: 500px;
+    height: 300px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#menu {
+    position: absolute;
+    width: 500px;
+    background: white;
+}
+
+.dialog {
+    position: absolute;
+    margin-top: 150px;
+    margin-left: 200px;
+    font-weight: 300;
+    font-size: x-large;
+}
+
+.score {
+    font-weight: 300;
+    font-size: x-large;
+}
+
+#leftScore {
+    float: left;
+    margin-left: 5px;
+}
+
+#rightScore {
+    float: right;
+    margin-right: 5px;
+}
+
+#speedIndicator {
+    float:right;
+    position:relative;
+    left:-50%;
+    text-align:left;
+}

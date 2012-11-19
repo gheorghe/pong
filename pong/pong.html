@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>PONG!</title>
+        <link rel="stylesheet" href="pong.css">
+        <script type="text/javascript" src="js/jquery-1.8.2.js"></script>
+        <script type="text/javascript" src="js/knockout-2.2.0.js"></script>
+        <script type="text/javascript" src="pong.js"></script>
+        <script type="text/javascript" src="menu.js"></script>
+    </head>
+    <body>
+        <div id="container">
+            <div id="menu">
+                <h3>Pong!</h3>
+                <form data-bind="submit: addGame">
+                    New Game: <input data-bind="value: gameName" placeholder="pong" />
+                    <button type="submit">Add</button>
+                </form>
+                <ul data-bind="foreach: games">
+                    <li>
+                        
+                    </li>
+                </ul>
+                <button id="start">Start</button>
+            </div>
+            
+            <div id="win" class="dialog">
+                <p>You win!</p>
+                <button id="playAgain">Play Again</button>
+            </div>
+            <div id="lose" class="dialog">
+                <p>You lose!</p>
+                <button id="playAgain">Play Again</button>
+            </div>
+            <div id="score">
+                <span id="leftScore" class="score">0</span>
+                <span id="speedIndicator" class="score">0</span>
+                <span id="rightScore" class="score">0</span>
+            </div>
+            <div id="#game">
+                <canvas id="canvas" width="500" height="300">
+                    <div>No canvas!?</div>
+                </canvas>
+            </div>
+            <div id="debug">
+                
+            </div>
+        </div>
+    </body>
+</html>
