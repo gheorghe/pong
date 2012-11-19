@@ -2,6 +2,7 @@ var http = require('http');
 
 // Static file server
 var inertia = require('inertia');
+inertia.useCache = false;
 var staticServer = inertia.createHandler();
 staticServer.addDirHandler('.');
 var fileServer = http.createServer(function(req, res) {
