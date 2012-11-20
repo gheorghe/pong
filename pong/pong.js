@@ -12,19 +12,30 @@ $(document).ready(function() {
                 break;
             }
         }
-    };
+    }
+    
+    Function.prototype.delay = function(del) {
+        var _this = this;
+        (function() {
+        setTimeout(_this,del);
+        })();
+    }
+    
+    var running = true;
     
     // Screens
     var menuScreen = $("#menu");
     var gameScreen = $("#game");
-    var winScreen = $("#win");
-    var loseScreen = $("#lose");
+    var winDialog = $("#win");
+    var loseDialog = $("#lose");
+    var pointDialog = $("#point");
     
     var playAgain = $("#playAgain");
     
     // Initial screen setup
-    winScreen.hide();
-    loseScreen.hide();
+    winDialog.hide();
+    loseDialog.hide();
+    pointDialog.hide();
     
     var startGame = $("#start");
     var togglePause = $("#togglePause");
@@ -43,13 +54,13 @@ $(document).ready(function() {
     });
     
     playAgain.click(function() {
-        winScreen.hide();
-        loseScreen.hide();
+        winDialog.hide();
+        loseDialog.hide();
         game.initializeGame();
     });
     
     var animate = function() {
-        if (game.running) {
+        if (running) {
             // Clear
             ctx.clearRect(0, 0, canvasWidth, canvasHeight);
             ctx.strokeStyle = "black";
@@ -80,10 +91,9 @@ $(document).ready(function() {
     
     function Game() {
         // Game properties
-        this.running = true;
         this.started = false;
         this.startSpeed = 4;
-        speedIndicator.html(this.startSpeed * 2);
+        speedIndicator.html(this.startSpeed);
         this.border = 4;
         this.winscore = 3;
 
@@ -102,6 +112,8 @@ $(document).ready(function() {
         };
 
         this.startRound = function() {
+            pointDialog.hide();
+            speedIndicator.html(this.startSpeed);
             this.ball.toCenter();
             
             // Send ball in a random direction
@@ -113,8 +125,11 @@ $(document).ready(function() {
         };
         
         this.pointCelebration = function() {
+            pointDialog.show()
             this.ball.stopMoving();
-            sleep(3000);
+            pointDialog.show();
+            running = false;
+            setTimeout(function() { running = true }, 2500);
             this.startRound();
         };
         
@@ -136,7 +151,7 @@ $(document).ready(function() {
         };
         
         this.playerWin = function(player) {
-            winScreen.show();
+            winDialog.show();
             this.ball.stopMoving();
             this.ball.visible = false;
         };
@@ -146,12 +161,17 @@ $(document).ready(function() {
         this.game = game;
         // Properties
         this.ballSize = 5;
-        this.speedIncFactor = 0.5;
+        this.speedIncFactor = 0.1;
         this.visible = true;
         
         // Linear velocity
         this.velocityX = 0;
         this.velocityY = 0;
+        
+        this.getSpeed = function() {
+            var absoluteSpeed = Math.abs(this.velocityX) + Math.abs(this.velocityY)
+            return Math.round(absoluteSpeed / 2);
+        };
         
         this.toCenter = function() {
             this.visible = true;
@@ -165,6 +185,28 @@ $(document).ready(function() {
         this.stopMoving = function() {
             this.velocityX = 0;
             this.velocityY = 0;
+        };
+        
+        // Calculate how far from the center the ball hit the paddle
+        // values are -1 for top, 1 for bottom, 0 for middle
+        this.deviationFactor = function(paddle) {
+            var maxDistance = paddle.paddleSize / 2
+            var distanceFromCenter = (this.y - paddle.y) - maxDistance;
+            return distanceFromCenter / maxDistance;
+        };
+        
+        this.applyDeviation = function(deviationFactor) {
+            if (Math.abs(deviationFactor) > 0.8) {
+                this.velocityY *= deviationFactor > 0 ? 1 : -1;
+            }
+
+            /*
+            if (this.velocityY > 0) {
+
+            } else {
+                this.velocityY += -deviationFactor * 3;
+            }
+            */
         };
 
         this.bounceBall = function() {
@@ -183,7 +225,7 @@ $(document).ready(function() {
                 this.y = canvasHeight - this.ballSize - this.game.border - 1;
                 this.velocityY *= -1;
             };
-                
+                        
             // Bounce off paddles
             for (var i = 0; i < this.game.paddles.length; i++) {
                 if (this.game.paddles[i].side == "right") {
@@ -192,7 +234,10 @@ $(document).ready(function() {
                     if (this.x >= paddleEdge && isInsidePaddle) {
                         this.x = this.game.paddles[i].x - this.game.paddles[i].paddleThickness - this.ballSize + 1;
                         this.velocityX *= -1;
+                        // Apply deviation
+                        this.applyDeviation(this.deviationFactor(this.game.paddles[i]));
                         this.incrementSpeed();
+                        debug.html(this.deviationFactor(this.game.paddles[i]));
                     };
                 } else if (this.game.paddles[i].side == "left") {
                     var paddleEdge = this.game.paddles[i].x + this.game.paddles[i].paddleThickness + this.ballSize;
@@ -200,10 +245,12 @@ $(document).ready(function() {
                     if (this.x <= paddleEdge && isInsidePaddle) {
                         this.x = this.game.paddles[i].x + this.game.paddles[i].paddleThickness + this.ballSize + 1;
                         this.velocityX *= -1;
+                        // Apply deviation
+                        this.applyDeviation(this.deviationFactor(this.game.paddles[i]));
                         this.incrementSpeed();
+                        debug.html(this.deviationFactor(this.game.paddles[i]));
                     };
                 };
-
             };
         };
         
@@ -216,14 +263,14 @@ $(document).ready(function() {
         };
         
         this.incrementSpeed = function() {            
-            this.velocityX += this.speedIncFactor;
-            this.velocityY += this.speedIncFactor;
+            this.velocityX += this.velocityX > 0 ? this.speedIncFactor : -this.speedIncFactor;
+            this.velocityY += this.velocityY > 0 ? this.speedIncFactor : -this.speedIncFactor;
             
             // Speed limit, things get messed up at higher speeds
             if (this.velocityX >= 15) { this.velocityX = 15 };
             if (this.velocityY >= 15) { this.velocityY = 15 };
-            var displaySpeed = Math.round(Math.abs(this.velocityX) + Math.abs(this.velocityY));
-            speedIndicator.html(displaySpeed);
+            
+            speedIndicator.html(this.getSpeed());
         };
         
         this.moveBall = function() {

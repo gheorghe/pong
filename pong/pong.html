@@ -4,7 +4,6 @@
         <title>PONG!</title>
         <link rel="stylesheet" href="pong.css">
         <script type="text/javascript" src="js/jquery-1.8.2.js"></script>
-        <script type="text/javascript" src="js/knockout-2.2.0.js" defer="defer"></script>
         <script type="text/javascript" src="pong.js"></script>
         <script type="text/javascript" src="menu.js"></script>
     </head>
@@ -14,14 +13,17 @@
                 <h3>Pong!</h3>
                 <form data-bind="submit: addGame">
                     New Game: <input data-bind="value: newGameText" />
-                    <button type="submit">Go</button>
+                    <button type="submit">Start</button>
                 </form>
                 <ul data-bind="foreach: games">
-                    <li data-bind="text: ko.toJSON($data, null, 2)"></li>
+                    <li data-bind="text: name"></li>
                 </ul>
+                <div data-bind="text: ko.toJSON($data)"></div>
                 <button id="start">Start</button>
             </div>
-            
+            <div id="point" class="dialog">
+                <p>Point!</p>
+            </div>
             <div id="win" class="dialog">
                 <p>You win!</p>
                 <button id="playAgain">Play Again</button>
