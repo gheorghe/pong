@@ -196,17 +196,15 @@ $(document).ready(function() {
         };
         
         this.applyDeviation = function(deviationFactor) {
-            if (Math.abs(deviationFactor) > 0.8) {
-                this.velocityY *= deviationFactor > 0 ? 1 : -1;
-            }
-
-            /*
             if (this.velocityY > 0) {
-
+                if (Math.abs(deviationFactor) > 0.8) {
+                    this.velocityY *= deviationFactor;
+                }
             } else {
-                this.velocityY += -deviationFactor * 3;
+                if (Math.abs(deviationFactor) > 0.8) {
+                    this.velocityY *= -deviationFactor;
+                }
             }
-            */
         };
 
         this.bounceBall = function() {
