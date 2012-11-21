@@ -8,7 +8,7 @@ staticServer.addDirHandler('.');
 var fileServer = http.createServer(function(req, res) {
     if (staticServer.serve(req, res)) return;
 });
-fileServer.listen(8000);
+fileServer.listen(80);
 
 
 /* Game state data structures */
