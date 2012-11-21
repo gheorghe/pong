@@ -12,31 +12,15 @@ fileServer.listen(8000);
 
 
 /* Game state data structures */
-var PaddleState = function(side, size) {
-    this.side = side;
-    this.size = size;
-    this.x = 0;
-    this.y = 0;
-};
-
-var BallState = function() {
-    this.velocityX = 0;
-    this.velocityY = 0;
-    this.x = 0;
-    this.x = 0;
-};
-
-var PlayerState = function(name, paddle) {
+var Player = function(name, paddleSize) {
     this.name = name;
-    this.paddle = paddle;
+    this.paddleSize = paddleSize;
     this.score = 0;
 };
 
-var GameState = function(leftPlayer, rightPlayer, ball,
-                         winScore, startSpeed, speedIncFactor) {
+var Game = function(leftPlayer, rightPlayer, winScore, startSpeed, speedIncFactor) {
     this.leftPlayer = leftPlayer;
     this.rightPlayer = rightPlayer;
-    this.ball = ball;
     this.winScore = winScore || 10;
     this.startSpeed = startSpeed || 4;
     this.speedIncFactor = speedIncFactor || 0.5;
@@ -46,12 +30,9 @@ var GameState = function(leftPlayer, rightPlayer, ball,
 var games = [];
 
 // test game
-paddleLeft = new PaddleState("left", 50);
-paddleRight = new PaddleState("right", 50);
-playerLeft = new PlayerState("gigi", paddleLeft);
-playerRight = new PlayerState("cornel", paddleRight);
-ball = new BallState();
-game = new GameState(playerLeft, playerRight, ball);
+playerLeft = new Player("gigi", paddleLeft);
+playerRight = new Player("cornel", paddleRight);
+game = new Game(playerLeft, playerRight);
 games.push(game);
 
 input = [];

@@ -161,7 +161,7 @@ $(document).ready(function() {
         this.game = game;
         // Properties
         this.ballSize = 5;
-        this.speedIncFactor = 0.1;
+        this.speedIncFactor = 0.5;
         this.visible = true;
         
         // Linear velocity
