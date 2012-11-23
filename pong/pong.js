@@ -61,13 +61,28 @@ $(document).ready(function() {
         setTimeout(animate, 20);
     };
     
-
+    // Event handlers
     // Update paddles location when mouse moves
     $("#canvas").mousemove(function(e) {
         for (var i =0; i < game.paddles.length; i++) {
             game.paddles[i].ypos = e.pageY;
             game.paddles[i].movePaddle();
         };
+    });
+    
+    $(document).bind('paddlehit', function() {
+    
+    });
+    
+    $(document).bind('point', function() {
+        setTimeout($.proxy(function() {
+            this.game.running = true;
+            this.game.startRound();
+        }, this), 2500);
+    });
+    
+    $(document).bind('win', function() {
+    
     });
     
     function Game() {
@@ -110,7 +125,7 @@ $(document).ready(function() {
             this.ball.stopMoving();
             pointDialog.show();
             this.running = false;
-            setTimeout($.proxy(function() { this.running = true, this.startRound(); }, this), 2500);
+            
         };
         
         this.incrementScore = function(player) {
