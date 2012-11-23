@@ -4,25 +4,6 @@ $(document).ready(function() {
     var canvasWidth = canvas.width();
     var canvasHeight = canvas.height();
     
-    // Put the motherfucker to sleep for good
-    function sleep(milliseconds) {
-        var start = new Date().getTime();
-        for (var i = 0; i < 1e7; i++) {
-            if ((new Date().getTime() - start) > milliseconds){
-                break;
-            }
-        }
-    }
-    
-    Function.prototype.delay = function(del) {
-        var _this = this;
-        (function() {
-        setTimeout(_this,del);
-        })();
-    }
-    
-    var running = true;
-    
     // Screens
     var menuScreen = $("#menu");
     var gameScreen = $("#game");
@@ -60,7 +41,7 @@ $(document).ready(function() {
     });
     
     var animate = function() {
-        if (running) {
+        if (game.running) {
             // Clear
             ctx.clearRect(0, 0, canvasWidth, canvasHeight);
             ctx.strokeStyle = "black";
@@ -91,6 +72,7 @@ $(document).ready(function() {
     
     function Game() {
         // Game properties
+        this.running = true;
         this.started = false;
         this.startSpeed = 4;
         speedIndicator.html(this.startSpeed);
@@ -125,12 +107,10 @@ $(document).ready(function() {
         };
         
         this.pointCelebration = function() {
-            pointDialog.show()
             this.ball.stopMoving();
             pointDialog.show();
-            running = false;
-            setTimeout(function() { running = true }, 2500);
-            this.startRound();
+            this.running = false;
+            setTimeout($.proxy(function() { this.running = true, this.startRound(); }, this), 2500);
         };
         
         this.incrementScore = function(player) {
@@ -265,8 +245,8 @@ $(document).ready(function() {
             this.velocityY += this.velocityY > 0 ? this.speedIncFactor : -this.speedIncFactor;
             
             // Speed limit, things get messed up at higher speeds
-            if (this.velocityX >= 15) { this.velocityX = 15 };
-            if (this.velocityY >= 15) { this.velocityY = 15 };
+            if (this.velocityX >= 10) { this.velocityX = 10 };
+            if (this.velocityY >= 10) { this.velocityY = 10 };
             
             speedIndicator.html(this.getSpeed());
         };
