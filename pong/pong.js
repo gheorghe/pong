@@ -70,21 +70,6 @@ $(document).ready(function() {
         };
     });
     
-    $(document).bind('paddlehit', function() {
-    
-    });
-    
-    $(document).bind('point', function() {
-        setTimeout($.proxy(function() {
-            this.game.running = true;
-            this.game.startRound();
-        }, this), 2500);
-    });
-    
-    $(document).bind('win', function() {
-    
-    });
-    
     function Game() {
         // Game properties
         this.running = true;
@@ -125,30 +110,33 @@ $(document).ready(function() {
             this.ball.stopMoving();
             pointDialog.show();
             this.running = false;
-            
+            setTimeout($.proxy(function() {
+                this.running = true;
+                this.startRound();
+            }, this), 2500);
         };
         
         this.incrementScore = function(player) {
             if (player == "left") {
-                this.leftScore++;
+                if (this.started != false) { this.leftScore++ }; 
                 leftScore.html(this.leftScore);
-                this.pointCelebration();
             } else {
-                this.rightScore++;
+                if (this.started != false) { this.rightScore++ };
                 rightScore.html(this.rightScore);
-                this.pointCelebration();
             };
             if (this.leftScore >= this.winscore) {
                 this.playerWin("left");
             } else if (this.rightScore >= this.winscore) {
                 this.playerWin("right");
+            } else {
+                this.pointCelebration();
             };
         };
         
         this.playerWin = function(player) {
             winDialog.show();
+            this.started = false;
             this.ball.stopMoving();
-            this.ball.visible = false;
         };
     }
     
@@ -230,7 +218,6 @@ $(document).ready(function() {
                         // Apply deviation
                         this.applyDeviation(this.deviationFactor(this.game.paddles[i]));
                         this.incrementSpeed();
-                        debug.html(this.deviationFactor(this.game.paddles[i]));
                     };
                 } else if (this.game.paddles[i].side == "left") {
                     var paddleEdge = this.game.paddles[i].x + this.game.paddles[i].paddleThickness + this.ballSize;
@@ -241,7 +228,6 @@ $(document).ready(function() {
                         // Apply deviation
                         this.applyDeviation(this.deviationFactor(this.game.paddles[i]));
                         this.incrementSpeed();
-                        debug.html(this.deviationFactor(this.game.paddles[i]));
                     };
                 };
             };
