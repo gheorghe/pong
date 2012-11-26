@@ -55,3 +55,14 @@ function onRequest(req, res) {
 var s = http.createServer(onRequest);
 
 s.listen(8080);
+
+/* Socket server */
+var socket = http.createServer(handler);
+var io = require('socket.io').listen(socket);
+
+socket.listen(1337);
+
+function handler(req, res) {
+    res.writeHead(200);
+    
+}
