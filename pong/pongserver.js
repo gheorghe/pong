@@ -30,8 +30,8 @@ var Game = function(leftPlayer, rightPlayer, winScore, startSpeed, speedIncFacto
 var games = [];
 
 // test game
-playerLeft = new Player("gigi", paddleLeft);
-playerRight = new Player("cornel", paddleRight);
+playerLeft = new Player("gigi");
+playerRight = new Player("cornel");
 game = new Game(playerLeft, playerRight);
 games.push(game);
 
@@ -53,16 +53,25 @@ function onRequest(req, res) {
 };
 
 var s = http.createServer(onRequest);
-
 s.listen(8080);
 
 /* Socket server */
-var socket = http.createServer(handler);
-var io = require('socket.io').listen(socket);
+var io = require('socket.io').listen(1337);
 
-socket.listen(1337);
-
-function handler(req, res) {
-    res.writeHead(200);
-    
-}
+io.sockets.on('connection', function(socket) {
+    socket.on('set_nick', function(name) {
+        socket.set('nickname', name, function() {
+            socket.emit('nick set');
+        });
+    });
+    socket.on('join_game', function(gameName, player) {
+        socket.set('game', gameName, function() {
+            socket.emit('game_joined', socket.get('game', function(err, game) {
+                console.log(game);
+            }));
+        });
+    });
+    socket.on('data', function(data) {
+        socket.emit('data', data);
+    });
+});
