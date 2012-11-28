@@ -12,35 +12,55 @@ fileServer.listen(80);
 
 
 /* Game state data structures */
-/*
+
 var Player = function(name, paddleSize) {
     this.name = name;
-    this.paddleSize = paddleSize;
+    this.side = 'left';
+    this.paddleSize = paddleSize || 50;
     this.score = 0;
 };
 
-var Game = function(leftPlayer, rightPlayer, winScore, startSpeed, speedIncFactor) {
-    this.leftPlayer = leftPlayer;
-    this.rightPlayer = rightPlayer;
+var Game = function(winScore, startSpeed, speedIncFactor) {
+    this.players = [];
     this.winScore = winScore || 10;
     this.startSpeed = startSpeed || 4;
     this.speedIncFactor = speedIncFactor || 0.5;
+    
+    var addPlayer = function(player) {
+        if (players.length == 0) {
+            this.players.push(player);
+        } else if (players.length == 1) {
+            player.side = 'right';
+            this.players.push(player);
+        } else {
+            throw "No more room for player.";
+        }
+    };
 };
-*/
+
+games = [];
+game = new Game();
+
 
 /* Socket server */
 var io = require('socket.io').listen(1337);
 
+sockets = [];
 io.sockets.on('connection', function(socket) {
-    socket.on('set_nick', function(name) {
-        socket.set('nickname', name, function() {
-            socket.emit('nick set');
-        });
-    });
-    socket.on('join_game', function(gameName) {
-        socket.set('game', gameName);
-    });
+    sockets.push(socket);
     socket.on('data', function(data) {
-        socket.emit('data', data);
+        socket.emit('data', socket.get('player') + " " + data);
+    });
+    socket.on('getplayercount', function() {
+        socket.emit('getplayercount', sockets.length);
+    });
+    socket.on('disconnect', function() {
+        sockets.splice(sockets.indexOf(socket), 1);
+    });
+    socket.on('paddlemoved', function(ypos) {
+        for (var i = 0; i < sockets.length; i++) {
+            if (sockets[i] == socket) continue;
+            sockets[i].emit('paddlemoved', ypos);
+        }
     });
 });

@@ -1,6 +1,12 @@
 var io = require('socket.io-client');
 socket = io.connect('http://localhost:1337')
-socket.on('message', function(data) {
+socket.on('data', function(data) {
+    console.log(data);
+});
+socket.on('getplayercount', function(data) {
+    console.log(data);
+});
+socket.on('paddlemoved', function(data) {
     console.log(data);
 });
 

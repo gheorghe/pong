@@ -27,6 +27,30 @@ $(document).ready(function() {
     var debug = $("#debug");
     
     var game = new Game();
+    var playercount = 0;
+    var myPaddle = {};
+    var hisPaddle = {};
+    
+    var socket = io.connect('http://localhost:1337');
+    socket.emit('getplayercount');
+    socket.on('getplayercount', function(result) {
+        playercount = result;
+        if (playercount > 1) {
+            myPaddle = new Paddle(game, canvasHeight/2, "right")
+            hisPaddle = new Paddle(game, canvasHeight/2, "left")
+        } else {
+            myPaddle = new Paddle(game, canvasHeight/2, "left")
+            hisPaddle = new Paddle(game, canvasHeight/2, "right")
+        }
+        game.paddles.push(myPaddle);
+        game.paddles.push(hisPaddle);
+    });
+    socket.on('paddlemoved', function(ypos) {
+        hisPaddle.ypos = ypos;
+        hisPaddle.movePaddle();
+        debug.html(ypos);
+    });
+
     
     startGame.click(function() {
         menuScreen.hide();
@@ -64,10 +88,11 @@ $(document).ready(function() {
     // Event handlers
     // Update paddles location when mouse moves
     $("#canvas").mousemove(function(e) {
-        for (var i =0; i < game.paddles.length; i++) {
-            game.paddles[i].ypos = e.pageY;
-            game.paddles[i].movePaddle();
-        };
+        myPaddle.ypos = e.pageY;
+        if (typeof myPaddle.movePaddle !== 'undefined') {
+            myPaddle.movePaddle();
+            socket.emit('paddlemoved', myPaddle.ypos);
+        }
     });
     
     function Game() {
@@ -81,8 +106,8 @@ $(document).ready(function() {
 
         this.ball = new Ball(this);
         this.paddles = [];
-        this.paddles.push(new Paddle(this, canvasHeight/2, "left"));
-        this.paddles.push(new Paddle(this, canvasHeight/2, "right"));
+        //this.paddles.push(new Paddle(this, canvasHeight/2, "left"));
+        //this.paddles.push(new Paddle(this, canvasHeight/2, "right"));
         
         this.initializeGame = function() {
             this.rightScore = 0;
