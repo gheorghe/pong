@@ -1,6 +1,6 @@
 var io = require('socket.io-client');
 socket = io.connect('http://localhost:1337')
-socket.on('data', function(data) {
+socket.on('message', function(data) {
     console.log(data);
 });
 

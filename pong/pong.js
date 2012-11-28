@@ -110,32 +110,19 @@ $(document).ready(function() {
             this.ball.stopMoving();
             pointDialog.show();
             this.running = false;
-<<<<<<< HEAD
             setTimeout($.proxy(function() {
                 this.running = true;
                 this.startRound();
             }, this), 2500);
-=======
->>>>>>> mda
         };
         
         this.incrementScore = function(player) {
             if (player == "left") {
                 if (this.started != false) { this.leftScore++ }; 
                 leftScore.html(this.leftScore);
-<<<<<<< HEAD
-=======
-                this.pointCelebration();
-                $(EventHub).trigger("point", ["left"]);
->>>>>>> mda
             } else {
                 if (this.started != false) { this.rightScore++ };
                 rightScore.html(this.rightScore);
-<<<<<<< HEAD
-=======
-                this.pointCelebration();
-                $(EventHub).trigger("point", ["right"]);
->>>>>>> mda
             };
             if (this.leftScore >= this.winscore) {
                 this.playerWin("left");
@@ -251,7 +238,6 @@ $(document).ready(function() {
                 this.game.incrementScore("right");
             } else if (this.x >= canvasWidth - this.game.border - this.ballSize) {
                 this.game.incrementScore("left");
-                $(EventHub).trigger("point", ["left"]);
             };
         };
         
