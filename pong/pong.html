@@ -9,16 +9,7 @@
     </head>
     <body>
         <div id="container">
-            <div id="menu">
-                <h3>Pong!</h3>
-                <form data-bind="submit: addGame">
-                    New Game: <input data-bind="value: newGameText" />
-                    <button type="submit">Start</button>
-                </form>
-                <ul data-bind="foreach: games">
-                    <li data-bind="text: name"></li>
-                </ul>
-                <div data-bind="text: ko.toJSON($data)"></div>
+            <div id="menu" class="dialog">
                 <button id="start">Start</button>
             </div>
             <div id="point" class="dialog">

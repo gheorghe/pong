@@ -30,6 +30,8 @@ $(document).ready(function() {
     var playercount = 0;
     var myPaddle = {};
     var hisPaddle = {};
+    var meReady = false;
+    var heReady = false;
     
     var socket = io.connect('http://localhost:1337');
     socket.emit('getplayercount');
@@ -48,13 +50,25 @@ $(document).ready(function() {
     socket.on('paddlemoved', function(ypos) {
         hisPaddle.ypos = ypos;
         hisPaddle.movePaddle();
-        debug.html(ypos);
+    });
+    socket.on('ready', function(ready) {
+        heReady = ready;
+    });
+    socket.on('started', function(started) {
+        game.started = started;
+    });
+    socket.on('update ball', function(ballSpeed) {
+        game.ball.velocityX = ballSpeed.velocityX;
+        game.ball.velocityY = ballSpeed.velocityY;
+        debug.html(ballSpeed);
     });
 
     
     startGame.click(function() {
         menuScreen.hide();
         animate();
+        socket.emit('ready', true);
+        meReady = true;
         game.initializeGame();
     });
     
@@ -65,6 +79,11 @@ $(document).ready(function() {
     });
     
     var animate = function() {
+        if (heReady && meReady) {
+            game.running = true;
+        } else {
+            game.running = false;
+        }
         if (game.running) {
             // Clear
             ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -106,8 +125,6 @@ $(document).ready(function() {
 
         this.ball = new Ball(this);
         this.paddles = [];
-        //this.paddles.push(new Paddle(this, canvasHeight/2, "left"));
-        //this.paddles.push(new Paddle(this, canvasHeight/2, "right"));
         
         this.initializeGame = function() {
             this.rightScore = 0;
@@ -122,21 +139,29 @@ $(document).ready(function() {
             pointDialog.hide();
             speedIndicator.html(this.startSpeed);
             this.ball.toCenter();
+            socket.emit('start round', true);
             
+            /*
             // Send ball in a random direction
             var side = Math.random() > 0.5 ? -1 : 1;
             var upordown = Math.random() > 0.5 ? -1 : 1;
             this.ball.velocityX = (Math.random() * 2 + this.startSpeed) * side;
             this.ball.velocityY = (Math.random() * 2 + this.startSpeed) * upordown;
             this.started = true;
+            */
         };
         
         this.pointCelebration = function() {
             this.ball.stopMoving();
             pointDialog.show();
-            this.running = false;
+            this.meReady = false;
+            this.started = false;
+            socket.emit('ready', false);
             setTimeout($.proxy(function() {
-                this.running = true;
+                this.meReady = true;
+                this.started = true;
+                socket.emit('ready', true);
+                socket.emit('started', true);
                 this.startRound();
             }, this), 2500);
         };
@@ -195,6 +220,11 @@ $(document).ready(function() {
             this.velocityY = 0;
         };
         
+        this.updatePosition = function() {
+            socket.emit('update ball',
+                        { 'velocityX': this.velocityX, 'velocityY': this.velocityY });
+        };
+        
         // Calculate how far from the center the ball hit the paddle
         // values are -1 for top, 1 for bottom, 0 for middle
         this.deviationFactor = function(paddle) {
@@ -231,7 +261,7 @@ $(document).ready(function() {
                 this.y = canvasHeight - this.ballSize - this.game.border - 1;
                 this.velocityY *= -1;
             };
-                        
+
             // Bounce off paddles
             for (var i = 0; i < this.game.paddles.length; i++) {
                 if (this.game.paddles[i].side == "right") {
@@ -256,6 +286,7 @@ $(document).ready(function() {
                     };
                 };
             };
+            this.updatePosition();
         };
         
         this.detectScore = function() {
